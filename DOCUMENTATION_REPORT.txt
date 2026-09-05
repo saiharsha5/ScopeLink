@@ -1,0 +1,204 @@
+SCOPELINK DOCUMENTATION REPORT
+TRACK_ID=PS6
+
+1. PROJECT SUMMARY
+
+ScopeLink is a supply-chain disruption response assistant for distributors.
+It accepts an unstructured supplier, carrier, or warehouse notice; maps the
+notice to local supplier, inbound shipment, inventory, and customer-order
+records; simulates inventory runway; ranks affected orders; and prepares
+operator-reviewed remediation options.
+
+The system recommends actions but does not dispatch shipments, notify
+customers, update an ERP, or mutate warehouse state.
+
+2. ONE-COMMAND RUN INSTRUCTIONS
+
+From the repository root:
+
+    pip install -r requirements.txt
+    python app.py
+
+Open:
+
+    http://localhost:8000
+
+The server uses PORT when supplied. For example:
+
+    set PORT=9000
+    python app.py
+
+On Linux/macOS:
+
+    PORT=9000 python app.py
+
+Python requirement: Python 3.11 or newer.
+
+Optional environment variable:
+
+    GEMINI_API_KEY=your_key_here
+
+When GEMINI_API_KEY is absent, invalid, unavailable, or rate-limited, the
+application uses its deterministic fallback extractor and remains usable.
+The key is read from the environment only and is not stored in the repository.
+
+3. RUNTIME FILES
+
+Required runtime files:
+
+    app.py                  FastAPI backend and deterministic simulation engine
+    requirements.txt        Python dependencies
+    data/mock_db.json       Local suppliers, inventory, shipments, orders,
+                            and remediation catalog
+    static/index.html       Browser UI served directly by FastAPI
+    README.md               Project README and API overview
+
+The removed TypeScript/Vite files were an unused duplicate frontend/backend
+stack. The submission now has one authoritative Python application path.
+
+4. ARCHITECTURE
+
+Request flow:
+
+    Notice text
+        |
+        v
+    Gemini structured extraction (optional)
+        |
+        +--> deterministic regex fallback when Gemini is unavailable
+        |
+        v
+    Supplier / carrier / tracking / PO matching against mock_db.json
+        |
+        v
+    Chronological inventory runway simulation
+        |
+        v
+    Impacted orders, lateness, SLA exposure, urgency ranking
+        |
+        v
+    Expedite / partial ship / reschedule trade-offs
+        |
+        v
+    Human operator review in the browser
+
+The LLM is limited to extracting structured entities from unstructured text:
+
+    supplier_name_or_alias
+    carrier_or_tracking_ref
+    delay_days
+    incident_summary
+    severity
+
+Inventory, date, shortage, urgency, cost, and recommendation calculations are
+deterministic Python logic grounded in the local database.
+
+5. LOCAL DATA MODEL
+
+The local database contains:
+
+    suppliers             Formal names, aliases, origin, lead times
+    inventory             SKU, name, on-hand stock, safety stock, unit cost
+    inbound_pos           Purchase orders, carriers, tracking IDs, dock dates
+    outbound_orders       Customers, tiers, quantities, ship dates, SLA terms
+    remediation_catalog   Expedite fees, premiums, and lead times
+
+Every impacted order includes evidence identifiers for:
+
+    po_number
+    inventory_sku
+    outbound_order_id
+
+6. API ENDPOINTS
+
+GET /api/health
+
+Returns a lightweight service status response.
+
+GET /api/db
+
+Returns the local mock database for the operator database inspector.
+
+POST /api/analyze
+
+Request:
+
+    {
+      "raw_text": "Apex Co reports a 7-day delay on PO-8821"
+    }
+
+The request is rejected when raw_text is empty or longer than 10,000
+characters.
+
+The response includes:
+
+    has_impact
+    status
+    message
+    extracted
+    matched_supplier
+    matched_po
+    all_matched_pos
+    impacted_orders
+    total_sla_exposure
+    simulation_details
+
+7. BUILT-IN DEMO SCENARIOS
+
+Scenario 1: Active Apex disruption
+
+    Supplier: Apex / Shenzhen plant
+    PO: PO-8821
+    Delay: 7 days
+    Expected result: two impacted customer orders, ranked by urgency
+
+Scenario 2: Unmapped warehouse notice
+
+    Notice: routine North Warehouse cleaning
+    Expected result: exactly zero operational impact and no matched PO
+
+Scenario 3: Buffer-absorbed Titan disruption
+
+    Supplier: Titan Fasteners
+    PO: PO-3344
+    Delay: 3 days
+    Expected result: existing stock absorbs the delay with no customer impact
+
+8. VALIDATION COMMANDS
+
+Python syntax check:
+
+    python -m py_compile app.py
+
+Health check after startup:
+
+    python -c "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8000/api/health').read().decode())"
+
+API smoke test:
+
+    python -c "from fastapi.testclient import TestClient; from app import app; c=TestClient(app); r=c.post('/api/analyze', json={'raw_text':'Apex Co 7-day delay Maersk Line MAEU1234890'}); print(r.status_code, r.json()['status'])"
+
+9. CLEANUP RECORD
+
+Removed because they were not used by python app.py:
+
+    package.json
+    server.ts
+    vite.config.ts
+    tsconfig.json
+    root index.html
+    metadata.json
+    src/ and its React components
+
+Generated Python bytecode and virtual environments are not application source
+and should remain uncommitted. The empty public asset directory was also not
+needed by the Python-served static frontend.
+
+10. OPERATIONAL NOTES
+
+- The Python app is the only supported application entrypoint.
+- The static frontend calls the Python API on the same origin.
+- Gemini failures fall back to deterministic extraction.
+- Recommendations are presented for human review only.
+- No credentials, keys, virtual environments, or model weights belong in the
+  repository.

@@ -42,7 +42,11 @@ def load_db() -> Dict[str, Any]:
 
 # Pydantic Schemas for Strict Parsing & Extraction
 class DisruptionNotice(BaseModel):
-    raw_text: str = Field(..., description="Unstructured supplier email, carrier alert, or incident log")
+    raw_text: str = Field(
+        ...,
+        max_length=10000,
+        description="Unstructured supplier email, carrier alert, or incident log"
+    )
 
 class ExtractionSchema(BaseModel):
     supplier_name_or_alias: Optional[str] = Field(None, description="Name or alias of vendor mentioned (e.g., Apex, GBL)")
@@ -98,7 +102,7 @@ def extract_entities_fallback(text: str, db: Dict[str, Any]) -> ExtractionSchema
 
     # 4. Severity detection
     severity = "Minor"
-    if delay_days >= 7 or "critical" in lower_text or "emergency" in lower_text:
+    if delay_days >= 7 or "critical" in lower_text or "emergency" in lower_text or "urgent" in lower_text:
         severity = "Critical"
     elif delay_days >= 3 or "warning" in lower_text or "congestion" in lower_text:
         severity = "Moderate"
@@ -117,6 +121,10 @@ def extract_entities_fallback(text: str, db: Dict[str, Any]) -> ExtractionSchema
 async def get_database():
     """Inspection endpoint for mock inventory, active POs, and outbound commitments."""
     return load_db()
+
+@app.get("/api/health")
+async def health_check():
+    return {"status": "ok", "service": "ScopeLink Supply Chain Intelligence", "track_id": "PS08"}
 
 @app.post("/api/analyze")
 async def analyze_disruption(notice: DisruptionNotice):
@@ -299,7 +307,7 @@ Extract the exact fields according to the schema:
                             "feasible": order["allow_partial"],
                             "units_available_now": running_stock,
                             "units_deferred": deficit,
-                            "sla_exposure": round((deficit / order["quantity"]) * sla_loss, 2) if order["quantity"] > 0 else 0,
+                            "sla_exposure": round((deficit / order["quantity"]) * sla_loss, 2) if order["allow_partial"] and order["quantity"] > 0 else round(sla_loss, 2),
                             "details": f"Ship {running_stock} units immediately; balance of {deficit} units upon revised dock date ({revised_dock.strftime('%Y-%m-%d')})."
                         },
                         "option_c_reschedule": {
@@ -339,6 +347,11 @@ Extract the exact fields according to the schema:
                         "sla_exposure": round(sla_loss, 2),
                         "urgency_score": urgency_score,
                         "allow_partial": order["allow_partial"],
+                        "evidence": {
+                            "po_number": po["po_number"],
+                            "inventory_sku": sku,
+                            "outbound_order_id": order["order_id"]
+                        },
                         "options": options,
                         "recommendation": recommendation,
                         "recommendation_reason": recommendation_reason
@@ -380,6 +393,11 @@ Extract the exact fields according to the schema:
                         "sla_exposure": round(sla_loss, 2),
                         "urgency_score": urgency_score,
                         "allow_partial": order["allow_partial"],
+                        "evidence": {
+                            "po_number": po["po_number"],
+                            "inventory_sku": sku,
+                            "outbound_order_id": order["order_id"]
+                        },
                         "options": {},
                         "recommendation": "Option C: Reschedule",
                         "recommendation_reason": "Secondary deficit after shipment allocation."

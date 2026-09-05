@@ -1,5 +1,6 @@
+TRACK_ID=PS6
+
 # ScopeLink: Mapping the blast radius of supply chain disruption
-**TRACK_ID=PS08**
 
 ScopeLink is a production-grade supply chain disruption analyzer that maps unstructured vendor incident notifications, carrier alerts, and shipping exception emails directly to inbound Purchase Orders (POs), simulates chronological inventory runway, and determines the precise downstream blast radius across customer order commitments.
 
@@ -107,6 +108,11 @@ The mock database covers comprehensive real-world supply chain scenarios:
       "sla_exposure": 2000.0,
       "urgency_score": 4800.0,
       "recommendation": "Option A: Expedite",
+          "evidence": {
+            "po_number": "PO-8821",
+            "inventory_sku": "MOT-001",
+            "outbound_order_id": "ORD-501"
+          },
       "options": { ... }
     }
   ],
@@ -125,3 +131,5 @@ The frontend is served directly by the backend at `http://localhost:8000`:
 - **Traceability Chain** showing the 4-step disruption progression.
 - **Urgency-Ranked Orders Table** with tier multipliers and financial impact.
 - **Operator Decision Desk** with side-by-side trade-off formulations and human approval workflows.
+
+Every recommendation includes evidence identifiers for the matched PO, inventory SKU, and outbound order. The application prepares a plan for operator review; it does not dispatch shipments, notify customers, or mutate warehouse/ERP state.

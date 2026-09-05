@@ -274,7 +274,7 @@
               </svg>
               Operator Decision Desk: Trade-off Formulations
             </h3>
-            <p class="text-xs text-slate-500">Evaluate financial trade-offs (Expedite vs. Partial Ship vs. Reschedule) and execute operational sign-off.</p>
+            <p class="text-xs text-slate-500">Evaluate financial trade-offs (Expedite vs. Partial Ship vs. Reschedule) and record human sign-off.</p>
           </div>
         </div>
 
@@ -295,7 +295,7 @@
     </div>
     <div class="flex-1">
       <h4 class="text-sm font-semibold" id="toastTitle">Plan Approved</h4>
-      <p class="text-xs text-slate-300 mt-0.5" id="toastDesc">Disruption remediation plan successfully stamped and dispatched.</p>
+      <p class="text-xs text-slate-300 mt-0.5" id="toastDesc">Plan recorded for human review. No shipment or customer action was dispatched.</p>
     </div>
     <button onclick="hideToast()" class="text-slate-400 hover:text-white text-sm">✕</button>
   </div>
@@ -447,7 +447,7 @@
         banner.innerHTML = `
           <svg class="w-5 h-5 text-slate-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
           <div>
-            <strong>Zero Operational Impact:</strong> ${data.message}
+            <strong>Zero Operational Impact:</strong> ${data.message.replace(/^Zero Operational Impact:\s*/, '')}
           </div>
         `;
       }
@@ -600,8 +600,8 @@
 
     function approvePlan(orderId, customer, rec) {
       const toast = document.getElementById('approvalToast');
-      document.getElementById('toastTitle').innerText = `Plan Approved: ${orderId}`;
-      document.getElementById('toastDesc').innerText = `Approved ${rec} for ${customer}. Operational instruction logged.`;
+      document.getElementById('toastTitle').innerText = `Plan Recorded: ${orderId}`;
+      document.getElementById('toastDesc').innerText = `${rec} recorded for ${customer}. No operational action was dispatched.`;
       toast.classList.remove('translate-y-20', 'opacity-0');
       toast.classList.add('translate-y-0', 'opacity-100');
       setTimeout(hideToast, 4500);

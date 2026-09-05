@@ -1,6 +1,0 @@
-{
-  "name": "ScopeLink",
-  "description": "Mapping the blast radius of supply chain disruption with entity extraction and deterministic inventory simulation (TRACK_ID=PS08).",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
