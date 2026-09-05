@@ -1,0 +1,145 @@
+{
+  "suppliers": [
+    {
+      "id": "S1",
+      "name": "Apex Precision Technologies",
+      "aliases": ["Apex", "Apex Co", "Apex Precision", "Shenzhen plant", "Apex Tech"],
+      "origin": "Shenzhen, China",
+      "lead_time_days": 30
+    },
+    {
+      "id": "S2",
+      "name": "Global Industrial Bearings Ltd",
+      "aliases": ["GBL", "Global Bearings", "Stuttgart hub", "Global Bearings Ltd"],
+      "origin": "Stuttgart, Germany",
+      "lead_time_days": 18
+    },
+    {
+      "id": "S3",
+      "name": "Titan Fasteners Corp",
+      "aliases": ["Titan", "Titan Fasteners", "Ohio facility", "Titan Hardware"],
+      "origin": "Cleveland, OH, USA",
+      "lead_time_days": 10
+    }
+  ],
+  "inventory": [
+    {
+      "sku": "MOT-001",
+      "name": "Brushless Micro Motor X1 (24V)",
+      "on_hand": 50,
+      "safety_stock": 100,
+      "unit_cost": 45.0,
+      "category": "Drive Systems"
+    },
+    {
+      "sku": "BRG-202",
+      "name": "Heavy-Duty Industrial Bearing 40mm",
+      "on_hand": 200,
+      "safety_stock": 150,
+      "unit_cost": 12.0,
+      "category": "Mechanical"
+    },
+    {
+      "sku": "FLG-99",
+      "name": "Grade-8 High Tensile Flange Bolt 10mm",
+      "on_hand": 1000,
+      "safety_stock": 500,
+      "unit_cost": 0.50,
+      "category": "Hardware"
+    }
+  ],
+  "inbound_pos": [
+    {
+      "po_number": "PO-8821",
+      "supplier_id": "S1",
+      "carrier": "Maersk Line",
+      "tracking": "MAEU1234890",
+      "sku": "MOT-001",
+      "dock_date": "2025-03-15",
+      "quantity": 150,
+      "status": "in_transit"
+    },
+    {
+      "po_number": "PO-9900",
+      "supplier_id": "S2",
+      "carrier": "DHL Global Forwarding",
+      "tracking": "DHL7892341",
+      "sku": "BRG-202",
+      "dock_date": "2025-03-10",
+      "quantity": 100,
+      "status": "in_transit"
+    },
+    {
+      "po_number": "PO-3344",
+      "supplier_id": "S3",
+      "carrier": "Old Dominion Freight",
+      "tracking": "ODFL556677",
+      "sku": "FLG-99",
+      "dock_date": "2025-03-14",
+      "quantity": 2000,
+      "status": "in_transit"
+    }
+  ],
+  "outbound_orders": [
+    {
+      "order_id": "ORD-501",
+      "customer": "Tesla Energy & Robotics",
+      "tier": "Strategic",
+      "sku": "MOT-001",
+      "quantity": 120,
+      "ship_date": "2025-03-18",
+      "sla_penalty": 500,
+      "allow_partial": true
+    },
+    {
+      "order_id": "ORD-502",
+      "customer": "Generic Automation & Robotics",
+      "tier": "Standard",
+      "sku": "MOT-001",
+      "quantity": 40,
+      "ship_date": "2025-03-20",
+      "sla_penalty": 50,
+      "allow_partial": false
+    },
+    {
+      "order_id": "ORD-701",
+      "customer": "BMW Precision Dynamics",
+      "tier": "Strategic",
+      "sku": "BRG-202",
+      "quantity": 250,
+      "ship_date": "2025-03-12",
+      "sla_penalty": 300,
+      "allow_partial": true
+    },
+    {
+      "order_id": "ORD-801",
+      "customer": "Honeywell Aerospace",
+      "tier": "Strategic",
+      "sku": "FLG-99",
+      "quantity": 300,
+      "ship_date": "2025-03-16",
+      "sla_penalty": 150,
+      "allow_partial": true
+    }
+  ],
+  "remediation_catalog": {
+    "MOT-001": {
+      "expedite_air_fee": 1200,
+      "secondary_source_available": true,
+      "secondary_source_premium": 15.0,
+      "expedite_lead_days": 3
+    },
+    "BRG-202": {
+      "expedite_air_fee": 400,
+      "secondary_source_available": true,
+      "secondary_source_premium": 2.0,
+      "expedite_lead_days": 2
+    },
+    "FLG-99": {
+      "expedite_air_fee": 100,
+      "secondary_source_available": true,
+      "secondary_source_premium": 0.1,
+      "expedite_lead_days": 1
+    }
+  }
+}
