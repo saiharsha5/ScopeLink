@@ -9,7 +9,7 @@ ScopeLink is a production-grade supply chain disruption analyzer that maps unstr
 
 ### Prerequisites
 - Python 3.11+
-- Gemini API Key: Set `GEMINI_API_KEY` in your environment (read exclusively via `os.environ.get("GEMINI_API_KEY")`).
+- Gemini API Key: Set `GEMINI_API_KEY` in your environment (e.g., `export GEMINI_API_KEY="your_key_here"` or configure in Google AI Studio Secrets). Read exclusively via `os.environ.get("GEMINI_API_KEY")`.
 
 ### Execution Commands
 ```bash
